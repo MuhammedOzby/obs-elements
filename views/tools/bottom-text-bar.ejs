@@ -7,6 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="/javascripts/socket-io/socket.io.min.js"></script>
   <script>
+    const toolSettingID = parseInt("<%= row[0].id%>");
+    const toolSettingName = "<%= row[0].SETTING_NAME%>";
+    /* document.body.style.backgroundColor = "#<%= row[0].BACKGROUND_COLOR_CODE%>"; */
     const socket_IO = io({
       path: "/obs-element-socket",
       reconnectionDelay: 1000,
@@ -18,14 +21,14 @@
       rejectUnauthorized: false
     });
 
-    socket_IO.on('connect', (socket) => {
-      document.getElementById("text").innerText = "NO text";
+    socket_IO.on('error', (err) => {
+      document.getElementById("text").innerText = err;
     });
 
     socket_IO.on('BOTTOM_TEXT_BAR', function (data) {
       console.log(data);
       document.getElementById("text").innerText = data.text;
-      document.getElementById("text").style.backgroundColor = data.color;
+      document.body.style.backgroundColor = "#" + data.color;
     });
 
   </script>
@@ -54,6 +57,7 @@
 <body>
   <div class="bar-background">
     <marquee id="text" behavior="scroll" direction="left" scrollamount="18">
+      <%= row[0].MAIN_TEXT %>
     </marquee>
   </div>
 </body>

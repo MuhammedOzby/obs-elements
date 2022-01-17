@@ -1,7 +1,7 @@
 const { io } = require("./server");
 var debug = require("debug")("obs-elements:socket-io");
 
-const socket = io.on("connection", (socket) => {
+io.on("connection", (socket) => {
   debug("connected socket!");
 
   socket.on("storeClientInfo", function (data) {
@@ -22,17 +22,3 @@ const socket = io.on("connection", (socket) => {
 
   return socket;
 });
-
-var aaa = 0;
-setInterval(() => {
-  aaa++;
-  socket.emit("BOTTOM_TEXT_BAR", {
-    setName: "aaa",
-    color: "#FFFFFF00",
-    text: "ABOOOOOOOOOOOCVVVVVVVVVVVVVV" + aaa,
-  });
-}, 1000);
-
-module.exports = {
-  socketIO: socket,
-};

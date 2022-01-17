@@ -5,8 +5,6 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
-var toolsRouter = require("./routes/tools/bottom-text-bar");
 
 var app = express();
 
@@ -20,9 +18,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+/**
+ * OBS control panel route
+ */
 app.use("/", indexRouter);
-app.use("/tools", toolsRouter);
-app.use("/users", usersRouter);
+
+/**
+ * Create API, tools and other on the sub directory
+ */
+require("./routes/api/main")(app);
+require("./routes/tools/main")(app);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
