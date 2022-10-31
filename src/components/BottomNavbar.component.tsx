@@ -23,7 +23,8 @@ function BottomNavbar() {
         width: "100vw",
         left: "0",
         backgroundColor: "#f5f8ff",
-        boxShadow: "-1px -14px 97px 0px rgba(0,0,0,0.38);",
+        boxShadow:
+          "0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)",
       }}
       value={match?.pathname ? match.pathname : ""}
       onChange={(_e, newValue) => {

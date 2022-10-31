@@ -4,6 +4,9 @@ import { RouterProvider } from "react-router-dom";
 import router from "./router";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
+import NoSleep from "nosleep.js";
+const noSleep = new NoSleep();
+noSleep.enable();
 import "./lib/obs-interface";
 
 import "@fontsource/roboto/300.css";

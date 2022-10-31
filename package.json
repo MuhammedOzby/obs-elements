@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
@@ -17,6 +17,7 @@
     "@reduxjs/toolkit": "^1.8.6",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
+    "nosleep.js": "^0.12.0",
     "obs-websocket-js": "^5.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

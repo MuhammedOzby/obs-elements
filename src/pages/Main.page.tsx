@@ -8,8 +8,10 @@ import {
 import React, { Component } from "react";
 import { Outlet } from "react-router-dom";
 import BottomNavbar from "../components/BottomNavbar.component";
+import RightStatusBarComponent from "../components/RightStatusBar.component";
 
 export default class PageMain extends Component {
+  async componentDidMount() {}
   render() {
     return (
       <>
@@ -17,6 +19,7 @@ export default class PageMain extends Component {
           <Outlet />
         </Container>
         <BottomNavbar />
+        <RightStatusBarComponent />
       </>
     );
   }

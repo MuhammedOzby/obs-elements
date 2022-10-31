@@ -1,8 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import obs from "../lib/obs-interface";
+import { OBSEventTypes, OBSResponseTypes } from "obs-websocket-js";
 
 export interface ConnectionState {
+  streamState: OBSEventTypes["StreamStateChanged"];
+  recordState: OBSEventTypes["RecordStateChanged"];
   connectionStatus: boolean;
   ipAddress: string;
   password: string;
@@ -10,6 +13,8 @@ export interface ConnectionState {
 }
 
 const initialState: ConnectionState = {
+  streamState: { outputActive: false, outputState: "" },
+  recordState: { outputActive: false, outputState: "" },
   connectionStatus: false,
   ipAddress: localStorage.getItem("ipAddress") || "127.0.0.1",
   port: parseInt(localStorage.getItem("port") || "4455"),
@@ -23,6 +28,7 @@ export const connectionSlice = createSlice({
     connectionStatusModify: (state, action: PayloadAction<boolean>) => {
       state.connectionStatus = action.payload;
     },
+    //* IP, pass, port info add and start the connection.
     setConnectionInfo: (
       state,
       action: PayloadAction<{
@@ -49,9 +55,25 @@ export const connectionSlice = createSlice({
           alert((error as Error).message);
         });
     },
+    streamStateModify: (
+      state,
+      action: PayloadAction<OBSEventTypes["StreamStateChanged"]>
+    ) => {
+      state.streamState = { ...action.payload };
+    },
+    recordStateModify: (
+      state,
+      action: PayloadAction<OBSEventTypes["RecordStateChanged"]>
+    ) => {
+      state.recordState = { ...action.payload };
+    },
   },
 });
 
-export const { connectionStatusModify, setConnectionInfo } =
-  connectionSlice.actions;
+export const {
+  connectionStatusModify,
+  setConnectionInfo,
+  streamStateModify,
+  recordStateModify,
+} = connectionSlice.actions;
 export default connectionSlice.reducer;
