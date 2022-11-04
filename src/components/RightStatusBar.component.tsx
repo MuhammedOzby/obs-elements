@@ -24,7 +24,6 @@ function RightStatusBarComponent() {
   const connectionStatus = useSelector(
     (state: RootState) => state.obsConnection.connectionStatus
   );
-  console.log(recordState);
 
   return (
     <Box

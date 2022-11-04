@@ -8,8 +8,9 @@ import {
   Stack,
   SwipeableDrawer,
   Typography,
+  Box,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Link,
   Cast,
@@ -21,7 +22,8 @@ import {
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import { useLocation, useMatch, useNavigate } from "react-router-dom";
-import { Box } from "@mui/system";
+import OBS from "../lib/obs-interface";
+import { OBSResponseTypes } from "obs-websocket-js";
 
 function BottomNavbar() {
   const [drawerStatus, setDrawerStatus] = useState(false);
@@ -31,20 +33,28 @@ function BottomNavbar() {
   const connectionStatus = useSelector(
     (state: RootState) => state.obsConnection.connectionStatus
   );
+  const [volumeInfos, setVolumeInfos] = useState<{
+    [key: string]: OBSResponseTypes["GetInputVolume"];
+  }>({});
+
+  const [statistics, setStatistics] = useState<OBSResponseTypes["GetStats"]>();
+
+  setTimeout(async () => setStatistics(await OBS.call("GetStats")), 1000);
 
   return (
     <>
       <Button
+        variant="contained"
         disabled={!connectionStatus}
         sx={{
           position: "fixed",
           width: "100vw",
           textAlign: "center",
-          bottom: "56px",
+          bottom: "60px",
           boxShadow:
             "0px 2px 1px -1px rgba(0,0,0,0.2),0px 1px 1px 0px rgba(0,0,0,0.14),0px 1px 3px 0px rgba(0,0,0,0.12)",
         }}
-        onClick={() => setDrawerStatus(true)}
+        onClick={GetVolumeState(setDrawerStatus, setVolumeInfos)}
       >
         Sound Controls
       </Button>
@@ -52,7 +62,7 @@ function BottomNavbar() {
         showLabels
         sx={{
           position: "fixed",
-          bottom: "0",
+          bottom: "10px",
           width: "100vw",
           left: "0",
           backgroundColor: "#f5f8ff",
@@ -94,26 +104,96 @@ function BottomNavbar() {
         ModalProps={{
           keepMounted: true,
         }}
+        sx={{ width: "80%", padding: 2 }}
       >
-        <Box sx={{ width: "100%", padding: 2 }}>
-          <Typography id="input-slider" gutterBottom>
-            Volume
-          </Typography>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item>
-              <VolumeUp />
-            </Grid>
-            <Grid item xs>
-              <Slider aria-label="Volume" step={1} />
-            </Grid>
-            <Grid item>
-              <VolumeUp />
-            </Grid>
-          </Grid>
+        <Box sx={{ width: "90%", padding: 2 }}>
+          {Object.entries(volumeInfos).map((data) => (
+            <div key={data[0]}>
+              <Typography id="input-slider" gutterBottom>
+                {data[0]}
+              </Typography>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item>
+                  <VolumeUp />
+                </Grid>
+                <Grid item xs>
+                  <Slider
+                    aria-label="Volume"
+                    defaultValue={data[1].inputVolumeDb}
+                    marks={[
+                      {
+                        value: 0,
+                        label: "Overload",
+                      },
+                    ]}
+                    min={-100}
+                    max={26}
+                    valueLabelDisplay="on"
+                    onChange={(elem, val, activeThumb) => {
+                      OBS.call("SetInputVolume", {
+                        inputName: data[0],
+                        inputVolumeDb: typeof val == "number" ? val : 0,
+                      });
+                    }}
+                  />
+                </Grid>
+                <Grid item>
+                  <VolumeUp />
+                </Grid>
+              </Grid>
+            </div>
+          ))}
         </Box>
       </Drawer>
+      <Box
+        sx={{
+          width: "100vw",
+          position: "fixed",
+          bottom: "0",
+          height: "18px",
+          backgroundColor: "white",
+          textAlign: "center",
+        }}
+      >
+        {connectionStatus ? (
+          <Typography variant="overline" sx={{ lineHeight: 0 }}>
+            CPU: {statistics?.cpuUsage.toFixed(2)} - MEM:{" "}
+            {statistics?.memoryUsage.toFixed(2)} - FPS:{" "}
+            {statistics?.activeFps.toFixed(2)} - Skipped Frame: (Render:{" "}
+            {statistics?.renderSkippedFrames} / Output:{" "}
+            {statistics?.outputSkippedFrames})
+          </Typography>
+        ) : (
+          "Not connected"
+        )}
+      </Box>
     </>
   );
 }
 
 export default BottomNavbar;
+
+function GetVolumeState(
+  setDrawerStatus: React.Dispatch<React.SetStateAction<boolean>>,
+  setVolumeInfos: React.Dispatch<
+    React.SetStateAction<{
+      [key: string]: { inputVolumeMul: number; inputVolumeDb: number };
+    }>
+  >
+): React.MouseEventHandler<HTMLButtonElement> | undefined {
+  return async () => {
+    setDrawerStatus(true);
+    const inputs = await OBS.call("GetSpecialInputs");
+    const inputsGarage: {
+      [key: string]: OBSResponseTypes["GetInputVolume"];
+    } = {};
+    for (const val of Object.values(inputs)) {
+      if (val !== null) {
+        inputsGarage[val] = await OBS.call("GetInputVolume", {
+          inputName: val,
+        });
+      }
+    }
+    setVolumeInfos(inputsGarage);
+  };
+}

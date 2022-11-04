@@ -1,7 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import obs from "../lib/obs-interface";
-import { OBSEventTypes, OBSResponseTypes } from "obs-websocket-js";
+import {
+  EventSubscription,
+  OBSEventTypes,
+  OBSResponseTypes,
+} from "obs-websocket-js";
 
 export interface ConnectionState {
   streamState: OBSEventTypes["StreamStateChanged"];
@@ -41,7 +45,8 @@ export const connectionSlice = createSlice({
       obs
         .connect(
           `ws://${action.payload.ipAddress}:${action.payload.port}`,
-          action.payload.password
+          action.payload.password,
+          { eventSubscriptions: EventSubscription.All }
         )
         .then((result) => {
           alert(
