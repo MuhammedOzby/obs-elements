@@ -52,7 +52,7 @@ class PageConnection extends Component<PropsFromRedux> {
               name="ip-address"
               id="ip-address"
               label="IP address"
-              placeholder="127.0.0.1"
+              placeholder="192.168.1.124"
               defaultValue={this.props.obsConnection.ipAddress}
             />
             <TextField

@@ -21,7 +21,7 @@ const initialState: ConnectionState = {
   recordState: { outputActive: false, outputState: "" },
   connectionStatus: false,
   ipAddress: localStorage.getItem("ipAddress") || "127.0.0.1",
-  port: parseInt(localStorage.getItem("port") || "4455"),
+  port: parseInt(localStorage.getItem("port") || "4444"),
   password: localStorage.getItem("password") || "",
 };
 
@@ -44,9 +44,11 @@ export const connectionSlice = createSlice({
       state = { ...state, ...action.payload };
       obs
         .connect(
-          `ws://${action.payload.ipAddress}:${action.payload.port}`,
+          `${window.location.protocol === "https:" ? "wss" : "ws"}://${
+            action.payload.ipAddress
+          }:${action.payload.port}`,
           action.payload.password,
-          { eventSubscriptions: EventSubscription.All }
+          { eventSubscriptions: EventSubscription.All, rpcVersion: 1 }
         )
         .then((result) => {
           alert(
